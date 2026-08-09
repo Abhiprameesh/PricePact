@@ -44,16 +44,27 @@ There is **no registration, login, or password required** for co-buyers. Here is
 
 ## ✨ Features
 
-1. **Pact Creation**: Users can define a product, retail price, target price, minimum co-buyers, community location, and deadline.
+1. **Pact Creation & Presets**: 
+   - Define a product, retail price, target price, minimum co-buyers, location boundary, and deadline.
+   - **Quick-Start Preset Templates**: Pre-fill common local group-buying demands (Water Cans, Organic Eggs, Pest Control, Copier Paper, and Laundry Services) in one click.
 2. **Pact Joining (Zero Auth)**: Anyone with the Pact link can instantly join by typing their name and required quantity.
 3. **Collective Demand Tracker**: 
    - Displays real-time metrics (joined buyers count, total consolidated quantity, and target savings margin).
    - Dynamic **Bargaining Power Gauge** indicating the current leverage tier (Weak, Moderate, or Strong).
-4. **AI Negotiation Assistant**: 
+4. **Interactive Bargaining Simulator**:
+   - Dynamic sandbox slider on details pages lets users simulate group growth (up to 50+ members).
+   - Real-time computations project savings margins, simulated volume, and upgrade bargaining leverage to *Supercharged*.
+5. **AI Negotiation Assistant (Customizable Outreach)**: 
    - Leverages Gemini to craft professional sales bids to vendors.
    - Offers three distinct bargaining personas: **Professional/Direct**, **Warm Community Appeal**, and **Aggressive Tender Bid**.
+   - **Outreach Customizer**: Fine-tune pitch scripts by supplying custom Vendor Names, Delivery Preferences, and Payment Terms directly into the AI prompt and fallback generators.
    - Integrates **Direct WhatsApp Share** to launch pre-filled chats with local merchants immediately.
-5. **Dual-Mode Data Sync (Bulletproof Offline Mode)**:
+6. **QR Code Sharing**:
+   - Toggles an interactive glassmorphic QR Code modal matching the Base64 state URL, allowing in-person scan-to-join operations.
+7. **Local Geolocation Radius Filters**:
+   - Filter active cluster pacts by physical radius relative to the user's mock GPS center (e.g. Walking distance < 500m, Neighborhood < 1.5km, Local Area < 5km).
+   - Shows active distance badges (e.g., `150m away`, `1.2km away`) on card previews.
+8. **Dual-Mode Data Sync (Bulletproof Offline Mode)**:
    - **Supabase PostgreSQL Mode**: Real-time multi-device cloud database sync.
    - **LocalStorage + URL-Encoding Fallback (No-DB Mode)**: If Supabase keys are absent, the application encodes the entire state (pact + participants) into a Base64 string in the URL. Sharing the URL shares the live state. **This makes the app 100% functional on Vercel without requiring any backend configuration!**
 

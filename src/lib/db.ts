@@ -22,7 +22,22 @@ export interface Pact {
   creatorName: string;
   createdAt: string;
   status: 'active' | 'negotiating' | 'completed' | 'expired';
+  distance?: number;
   participants: Participant[];
+}
+
+// Deterministic distance generator based on pact ID (returns a stable distance between 0.1 and 3.0 km)
+export function getDeterministicDistance(id: string): number {
+  if (id.startsWith('sample-water-cans')) return 0.1;
+  if (id.startsWith('sample-printing-paper')) return 0.5;
+  if (id.startsWith('sample-pest-control')) return 1.2;
+  
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const rawDist = Math.abs(hash % 29) / 10 + 0.1;
+  return parseFloat(rawDist.toFixed(1));
 }
 
 // Initialize Supabase if keys exist
@@ -48,6 +63,7 @@ export function encodePactToUrl(pact: Pact): string {
       c: pact.creatorName,
       ca: pact.createdAt,
       s: pact.status,
+      dist: pact.distance,
       pt: pact.participants.map(part => ({
         id: part.id,
         n: part.name,
@@ -78,6 +94,7 @@ export function decodePactFromUrl(encoded: string): Pact | null {
       creatorName: decoded.c,
       createdAt: decoded.ca,
       status: decoded.s,
+      distance: decoded.dist,
       participants: decoded.pt.map((p: any) => ({
         id: p.id,
         pactId: decoded.id,
@@ -113,12 +130,14 @@ function saveLocalPacts(pacts: Pact[]) {
 
 // Database API
 export const db = {
-  async createPact(pactData: Omit<Pact, 'id' | 'createdAt' | 'status' | 'participants'>): Promise<Pact> {
+  async createPact(pactData: Omit<Pact, 'id' | 'createdAt' | 'status' | 'participants'> & { distance?: number }): Promise<Pact> {
+    const pactId = typeof window !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11);
     const newPact: Pact = {
       ...pactData,
-      id: typeof window !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
+      id: pactId,
       createdAt: new Date().toISOString(),
       status: 'active',
+      distance: pactData.distance ?? getDeterministicDistance(pactId),
       participants: [
         {
           id: typeof window !== 'undefined' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11),
@@ -183,6 +202,7 @@ export const db = {
         creatorName: pact.creator_name,
         createdAt: pact.created_at,
         status: pact.status,
+        distance: newPact.distance,
         participants: [{
           id: participant.id,
           pactId: participant.pact_id,
@@ -223,6 +243,7 @@ export const db = {
         creatorName: pact.creator_name,
         createdAt: pact.created_at,
         status: pact.status,
+        distance: getDeterministicDistance(pact.id),
         participants: pact.participants.map((p: any) => ({
           id: p.id,
           pactId: p.pact_id,
@@ -332,6 +353,7 @@ export const db = {
         creatorName: pact.creator_name,
         createdAt: pact.created_at,
         status: pact.status,
+        distance: getDeterministicDistance(pact.id),
         participants: pact.participants.map((p: any) => ({
           id: p.id,
           pactId: p.pact_id,

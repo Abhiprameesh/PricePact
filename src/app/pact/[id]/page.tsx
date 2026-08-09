@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { 
   ArrowLeft, Users, Share2, Copy, Send, Calendar, CheckCircle, 
   AlertTriangle, Flame, ShieldAlert, BadgePercent, Sparkles, 
-  MessageSquareCode, HelpCircle, Check, MapPin, BadgeDollarSign
+  MessageSquareCode, HelpCircle, Check, MapPin, BadgeDollarSign,
+  QrCode
 } from 'lucide-react';
 import { db, decodePactFromUrl, encodePactToUrl, Pact, Participant } from '@/lib/db';
 import { generateNegotiationMessage } from '@/lib/gemini';
@@ -33,6 +34,15 @@ export default function PactDetails() {
   const [aiMessage, setAiMessage] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
 
+  // AI Custom Negotiation inputs
+  const [vendorName, setVendorName] = useState('');
+  const [deliveryOption, setDeliveryOption] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+
+  // QR Modal and Simulator states
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [simulatedBuyers, setSimulatedBuyers] = useState(0);
+
   // Creator Role State
   const [isCreator, setIsCreator] = useState(false);
 
@@ -41,6 +51,10 @@ export default function PactDetails() {
       const creatorFlag = localStorage.getItem(`pricepact_creator_${pact.id}`);
       if (creatorFlag === 'true' || pact.id.startsWith('sample-')) {
         setIsCreator(true);
+      }
+      // Initialize simulated buyers from pact data
+      if (simulatedBuyers === 0 && pact.participants.length > 0) {
+        setSimulatedBuyers(pact.participants.length);
       }
     }
   }, [pact]);
@@ -83,7 +97,7 @@ export default function PactDetails() {
     if (pact) {
       triggerAiGeneration();
     }
-  }, [pact?.participants.length, aiPersona]); // regenerate on join or persona change
+  }, [pact?.participants.length, aiPersona, vendorName, deliveryOption, paymentMethod]); // regenerate on join or parameters change
 
   const triggerAiGeneration = async () => {
     if (!pact) return;
@@ -99,7 +113,10 @@ export default function PactDetails() {
         actualParticipants: pact.participants.length,
         location: pact.location,
         creatorName: pact.creatorName,
-        persona: aiPersona
+        persona: aiPersona,
+        vendorName: vendorName || undefined,
+        deliveryOption: deliveryOption || undefined,
+        paymentMethod: paymentMethod || undefined
       });
       setAiMessage(msg);
     } catch (e) {
@@ -297,13 +314,20 @@ export default function PactDetails() {
                     </>
                   ) : (
                     <>
-                      <Share2 className="w-4 h-4 mr-2 text-white group-hover:scale-110 transition-transform animate-pulse" />
+                      <Share2 className="w-4 h-4 mr-2 text-white group-hover:scale-110 transition-transform" />
                       Copy Share Link & Invite Friends
                     </>
                   )}
                 </button>
+                <button
+                  onClick={() => setShowQrModal(true)}
+                  className="inline-flex items-center px-4 py-3 text-xs sm:text-sm font-bold text-brand-text bg-brand-surface-light border border-white/10 hover:border-brand-primary/50 rounded-xl cursor-pointer transition-all duration-150 active:scale-95"
+                >
+                  <QrCode className="w-4 h-4 mr-2 text-brand-secondary" />
+                  Show QR Code
+                </button>
                 <span className="text-[11px] text-brand-muted italic">
-                  * Share this in your community chats to pool demand.
+                  * Share links or QR codes in community chats to pool demand.
                 </span>
               </div>
             </div>
@@ -452,6 +476,80 @@ export default function PactDetails() {
                     }
                   </span>
                 </div>
+
+                {/* Bargaining Simulator Slider */}
+                <div className="mt-6 pt-6 border-t border-white/5 bg-brand-surface/20 p-4 rounded-xl">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+                    <div>
+                      <span className="text-xs font-bold text-brand-text block">Bargaining Sandbox Simulator</span>
+                      <span className="text-[10px] text-brand-muted">Drag slider to simulate collective savings growth.</span>
+                    </div>
+                    <span className="px-2 py-0.5 bg-brand-primary/10 text-brand-primary text-xs font-black rounded border border-brand-primary/20">
+                      {simulatedBuyers || participantsCount} buyers simulated
+                    </span>
+                  </div>
+                  
+                  <input
+                    type="range"
+                    min={participantsCount}
+                    max={Math.max(50, pact.minParticipants * 2.5)}
+                    className="w-full h-1.5 bg-brand-surface rounded-lg appearance-none cursor-pointer accent-brand-secondary my-3"
+                    value={simulatedBuyers || participantsCount}
+                    onChange={(e) => setSimulatedBuyers(parseInt(e.target.value))}
+                  />
+
+                  {/* Sandbox Calculations */}
+                  {(() => {
+                    const simCount = simulatedBuyers || participantsCount;
+                    const avgQty = totalUnits / (participantsCount || 1);
+                    const simQty = Math.round(simCount * avgQty);
+                    
+                    let simPower: 'Weak' | 'Moderate' | 'Strong' | 'Supercharged' = 'Weak';
+                    let simPowerColor = 'text-brand-danger';
+                    if (simCount >= pact.minParticipants * 2) {
+                      simPower = 'Supercharged';
+                      simPowerColor = 'text-brand-secondary font-black animate-pulse';
+                    } else if (simCount >= pact.minParticipants) {
+                      simPower = 'Strong';
+                      simPowerColor = 'text-brand-success';
+                    } else if (simCount >= pact.minParticipants * 0.4) {
+                      simPower = 'Moderate';
+                      simPowerColor = 'text-brand-accent';
+                    }
+
+                    let discountTier = 1.0;
+                    if (simCount >= pact.minParticipants * 2) {
+                      discountTier = 1.25;
+                    } else if (simCount >= pact.minParticipants) {
+                      discountTier = 1.0;
+                    } else {
+                      discountTier = Math.max(0.4, simCount / pact.minParticipants);
+                    }
+                    const simSavingsPerUnit = Math.round((pact.currentPrice - pact.targetPrice) * discountTier);
+                    const simTotalSavings = simSavingsPerUnit * simQty;
+
+                    return (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-4 pt-4 border-t border-white/5 text-center">
+                        <div className="p-2 bg-brand-surface/40 rounded-lg">
+                          <span className="block text-[10px] text-brand-muted mb-0.5">Projected Volume</span>
+                          <span className="text-xs font-bold text-brand-text">{simQty} units</span>
+                        </div>
+                        <div className="p-2 bg-brand-surface/40 rounded-lg">
+                          <span className="block text-[10px] text-brand-muted mb-0.5">Simulated Tier</span>
+                          <span className={`text-xs font-bold ${simPowerColor}`}>{simPower}</span>
+                        </div>
+                        <div className="p-2 bg-brand-surface/40 rounded-lg">
+                          <span className="block text-[10px] text-brand-muted mb-0.5">Savings / Unit</span>
+                          <span className="text-xs font-bold text-brand-success">₹{simSavingsPerUnit}</span>
+                        </div>
+                        <div className="p-2 bg-brand-surface/40 rounded-lg">
+                          <span className="block text-[10px] text-brand-muted mb-0.5">Total Group Saving</span>
+                          <span className="text-xs font-bold text-brand-success">₹{simTotalSavings}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
 
@@ -525,6 +623,53 @@ export default function PactDetails() {
                       {persona === 'warm' ? 'Friendly' : persona}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Vendor Outreach Parameters Customizer */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5 p-4 rounded-xl bg-brand-surface/40 border border-white/5 text-xs">
+                <div>
+                  <label className="block font-semibold text-brand-text mb-1.5">
+                    Vendor Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Sri Sai Traders"
+                    className="glass-input w-full rounded-lg px-2.5 py-2 text-xs focus:border-brand-primary"
+                    value={vendorName}
+                    onChange={(e) => setVendorName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-brand-text mb-1.5">
+                    Delivery Preference
+                  </label>
+                  <select
+                    className="glass-input w-full rounded-lg px-2.5 py-2 text-xs focus:border-brand-primary"
+                    value={deliveryOption}
+                    onChange={(e) => setDeliveryOption(e.target.value)}
+                  >
+                    <option value="">-- Select Option --</option>
+                    <option value="Single central drop-off point">Single central drop-off point</option>
+                    <option value="Door-to-door delivery inside community">Door-to-door delivery</option>
+                    <option value="Coordinator self-pickup at store">Coordinator self-pickup</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-semibold text-brand-text mb-1.5">
+                    Proposed Payment Terms
+                  </label>
+                  <select
+                    className="glass-input w-full rounded-lg px-2.5 py-2 text-xs focus:border-brand-primary"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  >
+                    <option value="">-- Select Option --</option>
+                    <option value="UPI / Online Transfer on Delivery">UPI / Online Transfer on Delivery</option>
+                    <option value="Cash on Delivery (COD)">Cash on Delivery (COD)</option>
+                    <option value="50% Advance online / 50% on receipt">50% Advance / 50% Receipt</option>
+                    <option value="100% Prepaid upfront billing">100% Upfront Prepaid</option>
+                  </select>
                 </div>
               </div>
 
@@ -671,6 +816,54 @@ export default function PactDetails() {
           </div>
 
         </div>
+
+        {/* QR Code Share Modal */}
+        {showQrModal && pact && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090a0f]/85 backdrop-blur-sm animate-fade-in">
+            <div className="glass-panel max-w-sm w-full p-6 rounded-2xl border-white/10 shadow-2xl relative animate-scale-in text-center">
+              <button
+                onClick={() => setShowQrModal(false)}
+                className="absolute top-4 right-4 p-1.5 hover:bg-white/5 rounded-lg text-brand-muted hover:text-brand-text transition-colors cursor-pointer text-sm font-bold"
+              >
+                ✕
+              </button>
+
+              <h3 className="text-lg font-extrabold text-brand-text mb-2">Scan & Join</h3>
+              <p className="text-xs text-brand-muted mb-6">Neighbors can scan this code with their phone cameras to instantly join the Pact.</p>
+              
+              {/* QR Code Container */}
+              <div className="bg-white p-4 rounded-xl inline-block mb-6 shadow-inner">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                    `${typeof window !== 'undefined' ? window.location.origin : ''}/pact/${pact.id}?pactData=${encodePactToUrl(pact)}`
+                  )}`}
+                  alt="PricePact Join Link QR Code"
+                  className="w-44 h-44 mx-auto"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/pact/${pact.id}?pactData=${encodePactToUrl(pact)}`;
+                    navigator.clipboard.writeText(shareUrl);
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 2000);
+                  }}
+                  className="w-full py-2.5 px-4 bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-md"
+                >
+                  {copiedLink ? 'Link Copied!' : 'Copy Share Link'}
+                </button>
+                <button
+                  onClick={() => setShowQrModal(false)}
+                  className="w-full py-2.5 px-4 bg-brand-surface-light hover:bg-brand-surface-light/80 text-brand-text text-xs font-bold rounded-lg transition-colors cursor-pointer border border-white/5"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

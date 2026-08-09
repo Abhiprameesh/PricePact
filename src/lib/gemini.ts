@@ -8,19 +8,24 @@ export interface NegotiationPromptParams {
   location: string;
   creatorName: string;
   persona: 'professional' | 'warm' | 'aggressive';
+  vendorName?: string;
+  deliveryOption?: string;
+  paymentMethod?: string;
 }
 
 // Local generative fallback templates (highly tailored and high quality)
 const LOCAL_TEMPLATES = {
   professional: (p: NegotiationPromptParams) => {
-    const savings = (p.currentPrice - p.targetPrice) * p.totalQuantity;
+    const salutation = p.vendorName ? `Dear ${p.vendorName},` : `Dear Vendor Partners,`;
+    const delivery = p.deliveryOption ? `\nFor delivery coordination, we request: ${p.deliveryOption}.` : '';
+    const payment = p.paymentMethod ? `\nOur preferred payment method is: ${p.paymentMethod}.` : '';
     return `Subject: Bulk purchase inquiry for ${p.productName} - ${p.location} Group
 
-Dear Vendor Partners,
+${salutation}
 
-I am writing to you on behalf of a buying group organized at ${p.location}. We have coordinates for a collective order of ${p.productName} and are looking to finalize a vendor.
+I am writing to you on behalf of a buying group organized at ${p.location}. We have coordinated a collective order of ${p.productName} and are looking to finalize a vendor partner.
 
-Currently, we have ${p.actualParticipants} buyers committed to purchasing a total of ${p.totalQuantity} units immediately. 
+Currently, we have ${p.actualParticipants} buyers committed to purchasing a total of ${p.totalQuantity} units immediately.${delivery}${payment}
 
 Normally, these would be separate individual transactions at the retail rate of ₹${p.currentPrice} per unit. However, as we have consolidated this demand into a single bulk delivery and transaction, we are requesting a volume discount price of ₹${p.targetPrice} per unit.
 
@@ -32,11 +37,16 @@ Organizer, PricePact Community`;
   },
 
   warm: (p: NegotiationPromptParams) => {
-    return `Hello! 
+    const salutation = p.vendorName ? `Hello ${p.vendorName} team!` : `Hello!`;
+    const delivery = p.deliveryOption ? `\nFor delivery, we'd prefer: ${p.deliveryOption}.` : '';
+    const payment = p.paymentMethod ? `\nWe plan to pay using: ${p.paymentMethod}.` : '';
+    return `${salutation}
 
-I'm reaching out from the ${p.location} community. A group of us (around ${p.actualParticipants} families/students) are looking to buy ${p.productName} together to save on delivery and coordinate locally.
+I'm reaching out from the ${p.location} community. A group of us (around ${p.actualParticipants} families/students) are looking to buy ${p.productName} together to save on delivery and coordinate logistics.
 
-In total, we are ready to purchase ${p.totalQuantity} units. Since we are ordering all at once and will have them delivered/picked up together, we were wondering if you could offer us a friendly community discount? 
+In total, we are ready to purchase ${p.totalQuantity} units.${delivery}${payment}
+
+Since we are ordering all at once and will have them delivered/picked up together, we were wondering if you could offer us a friendly community discount? 
 
 We usually buy them individually for ₹${p.currentPrice} each, but we'd love to see if we can buy them from you for ₹${p.targetPrice} each in this bulk order. It would be a big help to our neighborhood, and we'd love to make this a regular monthly purchase with you if it works out!
 
@@ -48,13 +58,16 @@ ${p.location} Buying Club`;
   },
 
   aggressive: (p: NegotiationPromptParams) => {
+    const salutation = p.vendorName ? `To: ${p.vendorName}` : `To Whom It May Concern,`;
+    const delivery = p.deliveryOption ? `\nDelivery terms requested: ${p.deliveryOption}.` : '';
+    const payment = p.paymentMethod ? `\nPayment terms proposed: ${p.paymentMethod}.` : '';
     return `Bulk Purchase Proposal: ${p.totalQuantity}x ${p.productName}
 
-To Whom It May Concern,
+${salutation}
 
 I have aggregated a buyer pact of ${p.actualParticipants} active customers at ${p.location} ready to order ${p.totalQuantity} units of ${p.productName} immediately.
 
-We have established a firm target purchase price of ₹${p.targetPrice} per unit (down from the standard retail rate of ₹${p.currentPrice}). 
+We have established a firm target purchase price of ₹${p.targetPrice} per unit (down from the standard retail rate of ₹${p.currentPrice}).${delivery}${payment}
 
 This is a guaranteed, high-volume order ready to be executed. We are currently offering this opportunity to a select few local vendors. The first vendor who can match our target rate of ₹${p.targetPrice}/unit or offer the closest competitive terms will secure the entire collective order.
 
@@ -94,7 +107,7 @@ Do not include placeholders like [Your Name] or [Price]; use the exact values pr
 - Consolidated volume: "${params.totalQuantity} units"
 - Group location/community: "${params.location}"
 - Creator/Negotiator name: "${params.creatorName}"
-- Desired Tone: "${params.persona === 'professional' ? 'Corporate, official bulk business inquiry' : params.persona === 'warm' ? 'Friendly local community buying club appeal' : 'Direct, competitive, high-volume tender bid'}"
+${params.vendorName ? `- Vendor name to pitch to: "${params.vendorName}"\n` : ''}${params.deliveryOption ? `- Delivery option/preference: "${params.deliveryOption}"\n` : ''}${params.paymentMethod ? `- Proposed payment method: "${params.paymentMethod}"\n` : ''}- Desired Tone: "${params.persona === 'professional' ? 'Corporate, official bulk business inquiry' : params.persona === 'warm' ? 'Friendly local community buying club appeal' : 'Direct, competitive, high-volume tender bid'}"
 
 Format it as a ready-to-send message. Do not include markdown meta-text (like "Here is your message:"). Just output the draft message itself.`;
 

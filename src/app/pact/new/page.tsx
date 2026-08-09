@@ -6,6 +6,64 @@ import Link from 'next/link';
 import { ArrowLeft, Sparkles, ShoppingBag, Landmark, Users, Calendar, User, Tag } from 'lucide-react';
 import { db, encodePactToUrl } from '@/lib/db';
 
+const TEMPLATES = [
+  {
+    name: 'Water Cans',
+    icon: '🪣',
+    productName: '20L Pure Mineral Water Can',
+    description: 'Bisleri/Kinley mineral water cans. Delivered directly to hostel block reception.',
+    currentPrice: '110',
+    targetPrice: '90',
+    minParticipants: '15',
+    targetQuantity: '50',
+    location: 'Gokul Hostel (Block A)',
+  },
+  {
+    name: 'Organic Eggs',
+    icon: '🥚',
+    productName: 'Fresh Organic Eggs (Pack of 30)',
+    description: 'Farm-fresh organic brown eggs. Single drop delivery for apartment complex.',
+    currentPrice: '220',
+    targetPrice: '180',
+    minParticipants: '10',
+    targetQuantity: '30',
+    location: 'Prestige Heights Block B',
+  },
+  {
+    name: 'Pest Control',
+    icon: '🐜',
+    productName: 'Professional Home Pest Control Service',
+    description: 'General insecticide and termite spraying. Combined visits waive transport fee.',
+    currentPrice: '1800',
+    targetPrice: '1450',
+    minParticipants: '8',
+    targetQuantity: '',
+    location: 'Prestige Heights Block C',
+  },
+  {
+    name: 'Copier Paper',
+    icon: '📄',
+    productName: 'Premium A4 Copier Paper (75GSM)',
+    description: 'Reams of high-grade A4 printing paper bundles for project assignments.',
+    currentPrice: '320',
+    targetPrice: '250',
+    minParticipants: '10',
+    targetQuantity: '45',
+    location: 'CBIT College Campus',
+  },
+  {
+    name: 'Laundry',
+    icon: '👕',
+    productName: 'Bulk Wash & Iron Laundry Service (Per kg)',
+    description: 'Coordinated laundry pickup and drop-off to unlock commercial rates.',
+    currentPrice: '80',
+    targetPrice: '60',
+    minParticipants: '12',
+    targetQuantity: '60',
+    location: 'Student Hostels Block D',
+  }
+];
+
 export default function NewPact() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -115,6 +173,38 @@ export default function NewPact() {
           <p className="mt-2 text-brand-muted text-sm sm:text-base">
             Gather your neighborhood, office, or college group to unlock massive local discount pricing.
           </p>
+        </div>
+
+        {/* Quick-Start Templates */}
+        <div className="mb-8 glass-panel p-5 rounded-2xl border-white/5 relative overflow-hidden">
+          <h3 className="text-xs font-extrabold text-brand-secondary uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" /> Quick-Start Templates
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+            {TEMPLATES.map((tmpl) => (
+              <button
+                key={tmpl.name}
+                type="button"
+                onClick={() => {
+                  setFormData({
+                    productName: tmpl.productName,
+                    description: tmpl.description,
+                    currentPrice: tmpl.currentPrice,
+                    targetPrice: tmpl.targetPrice,
+                    minParticipants: tmpl.minParticipants,
+                    targetQuantity: tmpl.targetQuantity,
+                    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    location: tmpl.location,
+                    creatorName: formData.creatorName
+                  });
+                }}
+                className="flex flex-col items-center justify-center p-3 rounded-xl bg-brand-surface/40 hover:bg-brand-surface-light border border-white/5 hover:border-brand-primary/50 text-center transition-all cursor-pointer group active:scale-95"
+              >
+                <span className="text-2xl mb-1.5 group-hover:scale-110 transition-transform">{tmpl.icon}</span>
+                <span className="text-[11px] font-bold text-brand-text group-hover:text-brand-primary transition-colors">{tmpl.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Form Panel */}

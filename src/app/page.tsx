@@ -23,6 +23,7 @@ const SAMPLE_PACTS: Pact[] = [
     creatorName: 'Karthik Rao',
     createdAt: new Date().toISOString(),
     status: 'active',
+    distance: 0.1,
     participants: [
       { id: 'p1', pactId: 'sample-water-cans', name: 'Karthik Rao', quantity: 3, joinedAt: new Date().toISOString() },
       { id: 'p2', pactId: 'sample-water-cans', name: 'Sneha M.', quantity: 2, joinedAt: new Date().toISOString() },
@@ -45,6 +46,7 @@ const SAMPLE_PACTS: Pact[] = [
     creatorName: 'Priya Sharma',
     createdAt: new Date().toISOString(),
     status: 'negotiating',
+    distance: 0.5,
     participants: [
       { id: 'pp1', pactId: 'sample-printing-paper', name: 'Priya Sharma', quantity: 4, joinedAt: new Date().toISOString() },
       { id: 'pp2', pactId: 'sample-printing-paper', name: 'Aditya Sen', quantity: 6, joinedAt: new Date().toISOString() },
@@ -70,6 +72,7 @@ const SAMPLE_PACTS: Pact[] = [
     creatorName: 'Ramesh Krishnan',
     createdAt: new Date().toISOString(),
     status: 'active',
+    distance: 1.2,
     participants: [
       { id: 'pc1', pactId: 'sample-pest-control', name: 'Ramesh Krishnan', quantity: 1, joinedAt: new Date().toISOString() },
       { id: 'pc2', pactId: 'sample-pest-control', name: 'Sunita Nair', quantity: 1, joinedAt: new Date().toISOString() },
@@ -82,6 +85,7 @@ const SAMPLE_PACTS: Pact[] = [
 export default function Home() {
   const [pacts, setPacts] = useState<Pact[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [radiusFilter, setRadiusFilter] = useState<'all' | '0.5' | '1.5' | '5.0'>('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -107,14 +111,20 @@ export default function Home() {
     loadPacts();
   }, []);
 
-  // Filter pacts by search query
+  // Filter pacts by search query and radius
   const filteredPacts = pacts.filter(pact => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       pact.productName.toLowerCase().includes(query) ||
       pact.location.toLowerCase().includes(query) ||
       pact.creatorName.toLowerCase().includes(query)
     );
+
+    if (!matchesSearch) return false;
+    if (radiusFilter === 'all') return true;
+    
+    const distance = pact.distance ?? 0.0;
+    return distance <= parseFloat(radiusFilter);
   });
 
   return (
@@ -193,7 +203,7 @@ export default function Home() {
 
       {/* Active Pacts Dashboard Section */}
       <section id="active-pacts" className="py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
             <h2 className="text-2xl font-black text-brand-text tracking-tight">Active Community Pacts</h2>
             <p className="text-xs sm:text-sm text-brand-muted mt-1">Join active demands in your area to maximize local leverage.</p>
@@ -209,6 +219,40 @@ export default function Home() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+          </div>
+        </div>
+
+        {/* Sub-bar: Cluster Location & Radius Filters */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-4 border-b border-white/5 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-bold">
+              <MapPin className="w-3.5 h-3.5 mr-1" />
+              Cluster Point: Prestige Heights Block A
+            </span>
+            <span className="text-[10px] text-brand-muted italic">
+              (Mock GPS Center)
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 bg-brand-surface p-1 rounded-lg border border-white/5 w-full md:w-auto overflow-x-auto">
+            {[
+              { label: 'All Distances', value: 'all' },
+              { label: 'Walking (<500m)', value: '0.5' },
+              { label: 'Neighborhood (<1.5km)', value: '1.5' },
+              { label: 'Local Area (<5km)', value: '5.0' },
+            ].map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => setRadiusFilter(tab.value as any)}
+                className={`px-3 py-1.5 text-[11px] font-bold rounded-md transition-all cursor-pointer whitespace-nowrap ${
+                  radiusFilter === tab.value
+                    ? 'bg-brand-primary text-white shadow-sm'
+                    : 'text-brand-muted hover:text-brand-text'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -260,9 +304,16 @@ export default function Home() {
                   <div>
                     {/* Location Badge */}
                     <div className="flex justify-between items-start gap-2 mb-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/5 border border-white/5 text-brand-muted">
-                        <MapPin className="w-3 h-3 mr-1 text-brand-primary" /> {pact.location}
-                      </span>
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/5 border border-white/5 text-brand-muted max-w-[120px] truncate">
+                          <MapPin className="w-3 h-3 mr-1 text-brand-primary" /> {pact.location}
+                        </span>
+                        {pact.distance !== undefined && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-secondary/10 border border-brand-secondary/20 text-brand-secondary whitespace-nowrap">
+                            {pact.distance < 1.0 ? `${Math.round(pact.distance * 1000)}m` : `${pact.distance}km`}
+                          </span>
+                        )}
+                      </div>
                       
                       {pact.status === 'completed' ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-success/15 border border-brand-success/20 text-brand-success">
