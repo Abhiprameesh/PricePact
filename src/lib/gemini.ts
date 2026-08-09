@@ -79,7 +79,7 @@ export async function generateNegotiationMessage(params: NegotiationPromptParams
   }
 
   // Call official Gemini API via REST fetch
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   
   const systemInstruction = `You are a professional negotiation assistant for "PricePact", a group buying platform.
 Your goal is to write a highly persuasive, concise email/WhatsApp negotiation message to a local vendor.
