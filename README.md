@@ -29,12 +29,16 @@ There is **no registration, login, or password required** for co-buyers. Here is
 
 ## 📸 Screenshots
 
-*(You can add your own screenshots of the dashboard here before submitting!)*
+### 🏠 Home Dashboard & Active Pacts
+![Home Dashboard Hero](public/screenshots/homepage_hero.png)
+![Home Dashboard Active Pacts](public/screenshots/homepage_active_pacts.png)
 
-* **Home Dashboard**: Displays active community pacts and collective bargaining tiers.
-* **Pact Creation**: A glassmorphic form showing live expected savings percentage calculations.
-* **Pact Details**: High-visibility progress gauges, co-buyer tables, and active organizer admin controls.
-* **AI Negotiator**: Compiles dynamic, tone-selectable outreach letters and copies them to WhatsApp.
+### 📂 Pact Creation Form
+![Pact Creation Form](public/screenshots/pact_creation.png)
+
+### 📊 Pact Details, Organizer Admin Panel & AI Negotiation
+![Pact Details Top Section](public/screenshots/pact_details_top.png)
+![Pact Details Bottom Section](public/screenshots/pact_details_bottom.png)
 
 ---
 
