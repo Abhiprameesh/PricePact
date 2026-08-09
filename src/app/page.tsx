@@ -122,33 +122,33 @@ export default function Home() {
       <div className="mesh-bg" />
 
       {/* Hero Header Section */}
-      <header className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center border-b border-white/5">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <header className="relative overflow-hidden py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center border-b border-white/5">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-primary/15 rounded-full blur-3xl pointer-events-none" />
         
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20 mb-6 uppercase tracking-wider">
-          <Sparkles className="w-3.5 h-3.5" /> HackDevengers 1.0 Entry
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-secondary/15 text-brand-secondary border border-brand-secondary/20 mb-6 uppercase tracking-wider animate-pulse">
+          <Sparkles className="w-3.5 h-3.5" /> Zero-friction coordination
         </span>
 
-        <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-brand-text">
-          Negotiate as a <span className="gradient-text">Wholesaler</span>,<br />
-          Buy as a <span className="gradient-text-success">Community</span>.
+        <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-brand-text leading-tight">
+          Negotiate as a <span className="gradient-text bg-gradient-to-r from-brand-primary to-brand-secondary">Wholesaler</span>,<br />
+          Buy as a <span className="gradient-text-success bg-gradient-to-r from-brand-success to-brand-secondary">Community</span>.
         </h1>
         
         <p className="mt-6 max-w-2xl mx-auto text-brand-muted text-base sm:text-lg leading-relaxed">
-          PricePact turns fragmented individual demand into high-value group buying power. Organize your college, office, or apartment neighborhood and start saving today.
+          PricePact aggregates scattered local demand into group purchasing power. Share a link, invite your neighbors or classmates, and lock in wholesale rates.
         </p>
 
         {/* Call to Actions */}
         <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
           <Link
             href="/pact/new"
-            className="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3.5 bg-brand-primary hover:bg-brand-primary-hover text-white text-sm font-extrabold rounded-lg shadow-lg cursor-pointer transition-all duration-150"
+            className="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3.5 bg-brand-primary hover:bg-brand-primary-hover text-white text-sm font-extrabold rounded-lg shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)] cursor-pointer transition-all duration-150 active:scale-95"
           >
             <Plus className="w-4 h-4 mr-2" /> Start a Buying Pact
           </Link>
           <a
             href="#active-pacts"
-            className="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3.5 bg-brand-surface-light border border-white/10 hover:border-brand-primary/50 text-brand-text text-sm font-bold rounded-lg cursor-pointer transition-all duration-150"
+            className="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3.5 bg-brand-surface-light border border-white/10 hover:border-brand-primary/50 text-brand-text text-sm font-bold rounded-lg cursor-pointer transition-all duration-150 active:scale-95"
           >
             Explore Active Pacts
           </a>
@@ -247,7 +247,15 @@ export default function Home() {
                 <Link 
                   key={pact.id} 
                   href={`/pact/${pact.id}?pactData=${encoded}`}
-                  className="glass-panel glass-panel-hover rounded-xl p-5 border-white/5 flex flex-col justify-between h-72 shadow-md"
+                  className={`glass-panel glass-panel-hover rounded-xl p-5 border-white/5 flex flex-col justify-between h-72 shadow-md ${
+                    pact.status === 'completed'
+                      ? 'border-t-2 border-t-brand-success'
+                      : pact.status === 'negotiating'
+                      ? 'border-t-2 border-t-brand-accent'
+                      : isMet
+                      ? 'border-t-2 border-t-brand-primary'
+                      : 'border-t border-t-white/10'
+                  }`}
                 >
                   <div>
                     {/* Location Badge */}
@@ -256,13 +264,21 @@ export default function Home() {
                         <MapPin className="w-3 h-3 mr-1 text-brand-primary" /> {pact.location}
                       </span>
                       
-                      {isMet ? (
+                      {pact.status === 'completed' ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-success/15 border border-brand-success/20 text-brand-success">
-                          Ready
+                          Savings Secured!
+                        </span>
+                      ) : pact.status === 'negotiating' ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-accent/15 border border-brand-accent/20 text-brand-accent">
+                          Negotiating
+                        </span>
+                      ) : isMet ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-primary/15 border border-brand-primary/20 text-brand-primary">
+                          Ready to Pitch
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-accent/15 border border-brand-accent/20 text-brand-accent animate-pulse">
-                          {progressPct}% Active
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-secondary/15 border border-brand-secondary/20 text-brand-secondary animate-pulse">
+                          {progressPct}% Joined
                         </span>
                       )}
                     </div>

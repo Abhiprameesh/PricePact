@@ -14,6 +14,30 @@ By consolidating scattered local demand into high-value bulk purchases, PricePac
 
 ---
 
+## 🤝 How It Works (Zero-Friction Co-Buying)
+
+PricePact is built to remove the biggest barrier to community group-buying: **the hassle of creating accounts.** 
+
+There is **no registration, login, or password required** for co-buyers. Here is the exact lifecycle of a Pact:
+
+1. **Create**: An organizer sets up a Pact in 60 seconds (specifying the item, standard retail price, target discount price, and minimum number of buyers needed).
+2. **Share**: The organizer clicks the prominent **"Copy Share Link"** on the Pact details page and posts it in their apartment complex WhatsApp group, college hostel Discord, or office Slack.
+3. **Join**: Neighbors and classmates click the link, open the dashboard, type their **Name** and **Quantity Needed**, and click **Join**. They instantly see their personal and community-wide savings updates.
+4. **Negotiate**: When the threshold is reached, the organizer uses the **AI Negotiation Assistant** to generate a pitch draft, then clicks **"Send via WhatsApp"** to instantly message local vendors and secure the discount.
+
+---
+
+## 📸 Screenshots
+
+*(You can add your own screenshots of the dashboard here before submitting!)*
+
+* **Home Dashboard**: Displays active community pacts and collective bargaining tiers.
+* **Pact Creation**: A glassmorphic form showing live expected savings percentage calculations.
+* **Pact Details**: High-visibility progress gauges, co-buyer tables, and active organizer admin controls.
+* **AI Negotiator**: Compiles dynamic, tone-selectable outreach letters and copies them to WhatsApp.
+
+---
+
 ## ✨ Features
 
 1. **Pact Creation**: Users can define a product, retail price, target price, minimum co-buyers, community location, and deadline.

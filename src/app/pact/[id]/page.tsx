@@ -258,23 +258,6 @@ export default function PactDetails() {
             <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
             Back to Dashboard
           </Link>
-          
-          <button
-            onClick={copyShareLink}
-            className="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-semibold text-brand-text bg-brand-surface-light border border-white/10 hover:border-brand-primary/50 rounded-lg cursor-pointer transition-all duration-150 shadow-md"
-          >
-            {copiedLink ? (
-              <>
-                <Check className="w-4 h-4 mr-2 text-brand-success" />
-                Copied Link!
-              </>
-            ) : (
-              <>
-                <Share2 className="w-4 h-4 mr-2 text-brand-primary" />
-                Copy Shareable Link
-              </>
-            )}
-          </button>
         </div>
 
         {/* Pact Basic Info Hero Card */}
@@ -282,7 +265,7 @@ export default function PactDetails() {
           <div className="absolute top-0 right-0 w-48 h-48 bg-brand-primary/5 rounded-full blur-3xl" />
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div>
+            <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
                   <MapPin className="w-3.5 h-3.5 mr-1" /> {pact.location}
@@ -299,6 +282,29 @@ export default function PactDetails() {
               
               <div className="mt-4 text-xs sm:text-sm text-brand-muted">
                 Pact initiated by <span className="font-semibold text-brand-text">{pact.creatorName}</span>
+              </div>
+
+              {/* Prominent Invite / Copy Shareable Link Section */}
+              <div className="mt-6 flex flex-wrap items-center gap-3 pt-4 border-t border-white/5">
+                <button
+                  onClick={copyShareLink}
+                  className="inline-flex items-center px-5 py-3 text-xs sm:text-sm font-extrabold text-white bg-brand-primary hover:bg-brand-primary-hover border border-transparent rounded-xl cursor-pointer transition-all duration-150 shadow-[0_0_20px_rgba(99,102,241,0.25)] hover:shadow-[0_0_25px_rgba(99,102,241,0.4)] group relative overflow-hidden active:scale-95"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2 text-brand-success" />
+                      Link Copied! Paste on WhatsApp
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-4 h-4 mr-2 text-white group-hover:scale-110 transition-transform animate-pulse" />
+                      Copy Share Link & Invite Friends
+                    </>
+                  )}
+                </button>
+                <span className="text-[11px] text-brand-muted italic">
+                  * Share this in your community chats to pool demand.
+                </span>
               </div>
             </div>
 
