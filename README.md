@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PricePact
 
-## Getting Started
+### ⚡ Turning scattered local demand into collective buying power.
 
-First, run the development server:
+**PricePact** is a lightweight, mobile-first community group-buying and negotiation platform designed for apartment complexes, student hostels, college campuses, and local office clusters. It enables individuals to aggregate their fragmented demand for everyday products and services (like water cans, stationery, pest control, or groceries) to secure bulk wholesale pricing from local merchants.
 
+---
+
+## 🚀 The Core Innovation
+
+Unlike typical group-buying models, **PricePact holds no inventory, handles no payments, and manages no logistics.** It acts purely as a **coordination and negotiation layer** between buyers and existing local vendors. 
+
+By consolidating scattered local demand into high-value bulk purchases, PricePact gives ordinary consumers the negotiating leverage of a commercial wholesaler.
+
+---
+
+## ✨ Features
+
+1. **Pact Creation**: Users can define a product, retail price, target price, minimum co-buyers, community location, and deadline.
+2. **Pact Joining (Zero Auth)**: Anyone with the Pact link can instantly join by typing their name and required quantity.
+3. **Collective Demand Tracker**: 
+   - Displays real-time metrics (joined buyers count, total consolidated quantity, and target savings margin).
+   - Dynamic **Bargaining Power Gauge** indicating the current leverage tier (Weak, Moderate, or Strong).
+4. **AI Negotiation Assistant**: 
+   - Leverages Gemini to craft professional sales bids to vendors.
+   - Offers three distinct bargaining personas: **Professional/Direct**, **Warm Community Appeal**, and **Aggressive Tender Bid**.
+   - Integrates **Direct WhatsApp Share** to launch pre-filled chats with local merchants immediately.
+5. **Dual-Mode Data Sync (Bulletproof Offline Mode)**:
+   - **Supabase PostgreSQL Mode**: Real-time multi-device cloud database sync.
+   - **LocalStorage + URL-Encoding Fallback (No-DB Mode)**: If Supabase keys are absent, the application encodes the entire state (pact + participants) into a Base64 string in the URL. Sharing the URL shares the live state. **This makes the app 100% functional on Vercel without requiring any backend configuration!**
+
+---
+
+## 🛠️ Technology Stack
+
+- **Frontend / Fullstack**: Next.js 16.3 (App Router)
+- **Styling**: Tailwind CSS v4 (Featuring a dark theme, glassmorphic panels, and glowing mesh gradients)
+- **Icons**: Lucide React
+- **Cloud Database (Optional)**: Supabase JS Client
+- **Generative AI**: Gemini 2.5 Flash REST client with offline compilation templates
+
+---
+
+## ⚡ Quick Start
+
+### 1. Installation
+Clone the repository and install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Run Locally
+Start the local development server:
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Build & Production Verification
+Validate the production compilation pipeline:
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛡️ Optional Environment Variables (`.env.local`)
+To enable real-time database sync and live Gemini AI calls, create a `.env.local` file in the root:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+# Optional Supabase config (falls back to LocalStorage + URL Sync if empty)
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Optional Gemini key (falls back to rules-based template compiler if empty)
+NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 💡 Pitch Deck (Submission Copy)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **One-line Pitch**: PricePact turns scattered local demand into collective buying power, helping communities negotiate better prices together.
+- **Short Pitch**: "What if your apartment, hostel, or college could negotiate like a wholesaler? PricePact brings individual buyers together, aggregates their demand, and helps them negotiate better prices with local vendors without holding inventory or processing payments."
+- **Why It Matters**: Individual buyers have weak bargaining power. Consolidated groups represent high guaranteed revenue. PricePact bridges this gap with a zero-friction, zero-setup community portal and AI negotiation templates.
